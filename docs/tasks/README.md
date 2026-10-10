@@ -1,36 +1,38 @@
-# 任务卡使用说明
+**English** | [简体中文](README.zh-CN.md)
 
-每张任务卡是一个 `.md` 文件，frontmatter 格式固定：
+# Task Card Guide
+
+Each task card is a `.md` file with fixed frontmatter:
 
 ```yaml
 ---
 id: P1-06
-title: 契约检查脚本
-status: 待认领        # 待认领 / 进行中 / 已完成
-owner: ''             # 认领者（人或 AI 的名字）
+title: Contract check script
+status: 待认领        # 待认领 (unclaimed) / 进行中 (in progress) / 已完成 (done)
+owner: ''             # claimant (human or AI)
 ---
 ```
 
-## 正文固定四节
+## Four Fixed Sections
 
-1. **目标** —— 为什么做
-2. **范围** —— 允许新建/修改的文件清单；范围外的改动必须先回写本卡
-3. **验收标准** —— 可逐条核对的清单
-4. **验收命令** —— 必须真实跑通的命令
+1. **Goal** — why we do it
+2. **Scope** — files allowed to create/modify; anything outside must be added to the card first
+3. **Acceptance criteria** — a checklist that can be verified item by item
+4. **Acceptance commands** — commands that must actually pass
 
-## 完工动作
+## Completing a Task
 
-- 状态改为「已完成」，owner 填自己
-- 文末追加「完工记录」：日期、验证命令输出摘要、遗留问题
+- Set status to 「已完成」 and fill in `owner`
+- Append a "Completion record": date, acceptance-command output summary, open issues
 
-## 当前任务板
+## Current Board
 
-| ID | 标题 | 状态 |
+| ID | Title | Status |
 |---|---|---|
-| P1-01 | core 插件运行时核 | ✅ 已完成 |
-| P1-02 | React 适配器 | ✅ 已完成 |
-| P1-03 | Vue 适配器 | ✅ 已完成 |
-| P1-04 | playground 验证场 | ✅ 已完成 |
-| P1-05 | schema 包（身份证+图纸类型） | ✅ 已完成 |
-| P1-06 | 契约检查脚本 | ⬜ 待认领 |
-| P2-01 | 图纸装配器 assembler | ⬜ 待认领（P2 阶段开启后） |
+| P1-01 | core plugin runtime | ✅ done |
+| P1-02 | React adapter | ✅ done |
+| P1-03 | Vue adapter | ✅ done |
+| P1-04 | playground demo app | ✅ done |
+| P1-05 | schema package (manifest + blueprint types) | ✅ done |
+| P1-06 | contract check script | ⬜ unclaimed |
+| P2-01 | blueprint assembler | ⬜ unclaimed (opens in P2) |

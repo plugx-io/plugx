@@ -1,45 +1,49 @@
-# 编码与协作约定
+**English** | [简体中文](conventions.zh-CN.md)
 
-## 语言与注释
+# Coding & Collaboration Conventions
 
-- 代码注释、文档、提交信息、AI 完工总结：**一律中文**
-- 注释写"为什么"，不写"是什么"（代码能自明的不写）
+## Language & Comments
 
-## 技术栈底线
+- Documentation: **always in pairs** — `X.md` (English, default) + `X.zh-CN.md` (中文), each with a language-switch link on the first line; creating or renaming a doc means updating both
+- Code comments, commit messages, AI completion summaries: **中文**
+- Diagrams: **Mermaid only** (GitHub renders it natively; AI can read and edit the source)
+- Comments explain "why", not "what" (self-evident code needs none)
 
-- 包管理：**只用 pnpm**（禁 npm/yarn），CI 与安装一律 `pnpm install --frozen-lockfile`
-- TypeScript strict 全开，`noUncheckedIndexedAccess` 开启；禁止裸 `any`，确需使用时写 `// eslint-disable-next-line` 并在注释说明原因
-- 内部包一律以 **TS 源码方式**被消费（`exports` 指向 `src`），不需要构建步骤；只有 apps 需要 `vite build`
+## Technical Baselines
 
-## 命名
+- Package manager: **pnpm only** (no npm/yarn); installs and CI use `pnpm install --frozen-lockfile`
+- TypeScript strict mode with `noUncheckedIndexedAccess`; no bare `any` — if unavoidable, add an eslint-disable comment explaining why
+- Internal packages are consumed **as TS source** (`exports` points at `src`); no build step needed — only apps run `vite build`
 
-| 对象 | 规范 | 示例 |
+## Naming
+
+| Object | Rule | Example |
 |---|---|---|
-| 文件/目录 | kebab-case | `hello-panel/` |
-| 组件 | PascalCase | `<HelloPanel />` |
-| 包名 | `@plugx/*` 内核、`@plugx-plugin/*` 插件 | `@plugx/core` |
-| 事件/插槽/服务 | 见 contracts.md 命名规范 | `app/toast` |
+| Files / directories | kebab-case | `hello-panel/` |
+| Components | PascalCase | `<HelloPanel />` |
+| Package names | `@plugx/*` kernel, `@plugx-plugin/*` plugins | `@plugx/core` |
+| Events / slots / services | see contracts.md naming rules | `app/toast` |
 
-## 提交信息
+## Commit Messages
 
-Conventional Commits：`feat(core): xxx` / `fix(adapter-react): xxx` / `docs: xxx`，scope 取包名去掉前缀。
+Conventional Commits: `feat(core): xxx` / `fix(adapter-react): xxx` / `docs: xxx`; scope = package name without prefix.
 
-## 插件写作模板
+## Plugin Template
 
 ```ts
 import type { Plugin } from '@plugx/core'
 
 export const myPlugin: Plugin = {
-  name: 'my-plugin',        // 与目录名一致
-  inject: ['theme'],        // 声明依赖的服务，就绪后才挂载
+  name: 'my-plugin',        // matches the directory name
+  inject: ['theme'],        // declared services; mounts after they are ready
   apply(ctx) {
-    // 一切注册走 ctx.on / ctx.contribute / ctx.effect —— 自动可逆
+    // all registrations go through ctx.on / ctx.contribute / ctx.effect — auto-reversible
     ctx.contribute('dashboard', { framework: 'react', component: MyCard, order: 10 })
     ctx.on('app/toast', (msg) => { /* ... */ })
   },
 }
 ```
 
-## AI 协作
+## AI Collaboration
 
-见根目录 [AGENTS.md](../AGENTS.md)，那是最高约束。
+See the root [AGENTS.md](../AGENTS.md) — it is the supreme constraint.

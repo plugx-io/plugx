@@ -1,41 +1,50 @@
-# 契约清单（冻结级）
+**English** | [简体中文](contracts.zh-CN.md)
 
-> 本文件是插件生态的"法律"。**新增/修改任何条目，先改本文件，再写代码。**
-> 代码中出现本清单之外的服务 key / 事件名 / 插槽名 = 违规。
+# Contract Registry (Frozen)
 
-## 命名规范
+> This file is the "law" of the plugin ecosystem. **To add or change any entry, edit this file first, then write code.**
+> Any service key / event name / slot name in code that is absent from this registry = violation.
 
-- 服务 key：小写单词或短横线（`theme`、`http`、`auth`）
-- 事件名：`域/动作`，全小写短横线（`app/toast`、`device/selected`）
-- 插槽名：全小写短横线（`dashboard`、`header-actions`）
+```mermaid
+flowchart LR
+    A["① Register here first<br/>service / event / slot"] --> B["② Then write code"]
+    B --> C["③ check:contracts<br/>auto-compare (P1-06)"]
+    C -->|"unlisted name"| D["❌ reject"]
+```
+
+## Naming Rules
+
+- Service keys: lowercase word or kebab-case (`theme`, `http`, `auth`)
+- Events: `domain/action`, lowercase kebab-case (`app/toast`, `device/selected`)
+- Slots: lowercase kebab-case (`dashboard`, `header-actions`)
 
 ---
 
-## 一、服务（ctx.set/get 的 key）
+## 1. Services (keys for ctx.set/get)
 
-| key | 类型摘要 | 提供方 | 说明 |
+| Key | Type sketch | Provider | Notes |
 |---|---|---|---|
-| `theme` | `{ primary: string }` | 壳工程 | 主题变量，插件只读消费 |
-| `http` | （预留，P2 定义） | 壳工程 | 统一请求层 |
-| `auth` | （预留，P2 定义） | 壳工程 | 登录态与权限 |
+| `theme` | `{ primary: string }` | shell | theme tokens, plugins consume read-only |
+| `http` | (reserved, defined in P2) | shell | unified request layer |
+| `auth` | (reserved, defined in P2) | shell | session & permissions |
 
-## 二、事件
+## 2. Events
 
-| 事件名 | 分发模式 | 载荷 | 说明 |
+| Event | Mode | Payload | Notes |
 |---|---|---|---|
-| `app/toast` | emit | `message: string` | 全局轻提示，壳负责展示 |
-| `slot/changed:<插槽名>` | emit（内部） | 无 | core 内部使用，插件禁止直接监听 |
-| `device/selected` | emit（预留） | `{ id: string }` | 设备选中变化 |
-| `permission/check` | bail（预留） | `perm: string` → `boolean \| void` | 任一插件返回 false 即否决 |
-| `table/columns` | waterfall（预留） | 列定义数组 | 表格列加工链 |
+| `app/toast` | emit | `message: string` | global toast, displayed by the shell |
+| `slot/changed:<slot>` | emit (internal) | none | core-internal; plugins must not listen directly |
+| `device/selected` | emit (reserved) | `{ id: string }` | device selection changed |
+| `permission/check` | bail (reserved) | `perm: string` → `boolean \| void` | any plugin returning false vetoes |
+| `table/columns` | waterfall (reserved) | column defs array | table column processing chain |
 
-## 三、插槽
+## 3. Slots
 
-| 插槽名 | 位置 | 贡献物要求 |
+| Slot | Location | Contribution requirements |
 |---|---|---|
-| `dashboard` | 主内容网格 | 卡片式组件，自适应宽度 ≥280px |
-| `header-actions` | （预留）页头右侧 | 图标按钮级 |
+| `dashboard` | main content grid | card-style component, adaptive width ≥ 280px |
+| `header-actions` | (reserved) right side of page header | icon-button level |
 
-## 四、渲染器框架标记
+## 4. Renderer Framework Tags
 
-`react` / `vue` / `html` —— 新增框架 = 新增一个 `packages/adapter-*`，本表同步登记。
+`react` / `vue` / `html` — adding a framework = adding a `packages/adapter-*` package and registering the tag here.

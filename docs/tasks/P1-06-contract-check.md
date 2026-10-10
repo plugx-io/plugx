@@ -1,28 +1,30 @@
 ---
 id: P1-06
-title: 契约检查脚本
+title: 契约检查脚本 / Contract check script
 status: 待认领
 owner: ''
 ---
 
-## 目标
+**English** | [简体中文](P1-06-contract-check.zh-CN.md)
 
-防止"代码里出现 contracts.md 之外的事件名/插槽名"这类契约腐化，用脚本自动比对，作为 CI 卡口。
+## Goal
 
-## 范围
+Prevent contract rot — code referencing event/slot names absent from contracts.md — by auto-comparing with a script that acts as a CI gate.
 
-- 新建 `scripts/check-contracts.mjs`
-- 允许修改根 `package.json` 增加脚本 `"check:contracts": "node scripts/check-contracts.mjs"`
-- 允许在 `docs/contracts.md` 附录补充机器可读区块（如 ```contracts 代码块），但**不许改动已有契约条目**
+## Scope
 
-## 验收标准
+- Create `scripts/check-contracts.mjs`
+- May add `"check:contracts": "node scripts/check-contracts.mjs"` to the root `package.json`
+- May append a machine-readable block to `docs/contracts.md` + `contracts.zh-CN.md` (e.g. a ```contracts code block), but **must not change existing contract entries**
 
-- [ ] 扫描 `packages/*/src`、`plugins/*/src`、`apps/*/src` 下所有 `.ts/.tsx` 文件
-- [ ] 提取 `ctx.emit/on/bail/waterfall/parallel/serial/contribute` 的字符串字面量参数
-- [ ] 与 contracts.md 的契约清单比对，清单之外的名称报错退出（exit code 1），全部合法输出通过信息
-- [ ] `slot/changed:` 前缀属 core 内部事件，白名单放行
+## Acceptance Criteria
 
-## 验收命令
+- [ ] Scans all `.ts/.tsx` files under `packages/*/src`, `plugins/*/src`, `apps/*/src`
+- [ ] Extracts string-literal arguments of `ctx.emit/on/bail/waterfall/parallel/serial/contribute`
+- [ ] Compares against the registry in contracts.md; unlisted names exit with code 1; all-listed prints a success message
+- [ ] The `slot/changed:` prefix is core-internal — whitelist it
+
+## Acceptance Commands
 
 ```powershell
 pnpm check:contracts

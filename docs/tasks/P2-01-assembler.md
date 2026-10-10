@@ -1,30 +1,32 @@
 ---
 id: P2-01
-title: 图纸装配器 assembler
+title: 图纸装配器 assembler / Blueprint assembler
 status: 待认领
 owner: ''
 ---
 
-> 本任务属于 P2 阶段，P1 全部完成前不得开工。
+**English** | [简体中文](P2-01-assembler.zh-CN.md)
 
-## 目标
+> This task belongs to phase P2 — do not start before P1 is fully complete.
 
-新增 `packages/assembler`：读入 PageBlueprint JSON，自动完成"动态加载插件 → ctx.plugin 挂载 → 按 wiring 接事件线"，让页面完全由图纸驱动。
+## Goal
 
-## 范围
+Create `packages/assembler`: read a PageBlueprint JSON and automatically "dynamic-load plugins → ctx.plugin mount → wire events per wiring", making pages fully blueprint-driven.
 
-- 新建 `packages/assembler/`（package.json、tsconfig、src/index.ts）
-- 允许修改 `apps/playground` 增加一个"从图纸启动"的入口
-- 禁止改动 packages/core 的公开 API（如发现 core 能力不足，先在完工总结中记录，由人决策）
+## Scope
 
-## 验收标准
+- Create `packages/assembler/` (package.json, tsconfig, src/index.ts)
+- May add a "boot from blueprint" entry in `apps/playground`
+- Must NOT change the public API of packages/core (if core falls short, record it in the completion summary for a human decision)
 
-- [ ] `assemble(ctx, blueprint, loader)` 三参 API：上下文、图纸、插件加载函数
-- [ ] 图纸校验失败（zod）时给出可读的中文错误信息
-- [ ] wiring 中 from 插件发出的事件自动转发到 to 插件声明的处理
-- [ ] playground 新增 `blueprint.json`，页面内容由图纸驱动渲染
+## Acceptance Criteria
 
-## 验收命令
+- [ ] Three-argument API: `assemble(ctx, blueprint, loader)` — context, blueprint, plugin loader function
+- [ ] Blueprint validation failures (zod) produce readable Chinese error messages
+- [ ] Events emitted by the `from` plugin in wiring are forwarded to the `to` plugins' declared handlers
+- [ ] playground gains a `blueprint.json`; page content renders from the blueprint
+
+## Acceptance Commands
 
 ```powershell
 pnpm typecheck

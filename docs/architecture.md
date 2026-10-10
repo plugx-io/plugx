@@ -1,63 +1,88 @@
-# 架构全景
+**English** | [简体中文](architecture.zh-CN.md)
 
-> 大白话版本：**项目是插线板，功能是插头，什么框架写的插头都能插。**
+# Architecture Overview
 
-## 一、核心思想（Cordis 五概念的前端映射）
+> In plain words: **the app is a power strip, features are plugs — a plug written in any framework fits.**
 
-| Cordis 概念 | PlugX 对应物 | 解决什么 |
+## 1. Core Ideas (the five Cordis concepts mapped to frontend)
+
+| Cordis concept | PlugX counterpart | What it solves |
 |---|---|---|
-| `ctx.<key>` 服务容器 | `ctx.set/get('theme')` 等服务 | 插件不 import 实现，只认服务 key |
-| `inject` 声明依赖 | `Plugin.inject` + 自动等待就绪 | 消灭手动编排的挂载顺序 |
-| 类型化事件五种分发 | `emit / parallel / serial / bail / waterfall` | 插件间零耦合通信与数据流水线 |
-| `ctx.effect()` 可逆副作用 | 插件作用域自动收集 disposer，卸载逆序撤销 | 插件热插拔不泄漏 |
-| Loader / overlay | （P2）按图纸/环境装配不同插件集 | 一套代码出多个产品形态 |
+| `ctx.<key>` service container | services via `ctx.set/get('theme')` | Plugins reference service keys, never implementations |
+| `inject` dependency declaration | `Plugin.inject` + automatic wait | No manual mount ordering |
+| Typed events, five dispatch modes | `emit / parallel / serial / bail / waterfall` | Zero-coupling communication & data pipelines |
+| `ctx.effect()` reversible side effects | Plugin-scoped disposers, undone in reverse on unload | Hot plug/unplug without leaks |
+| Loader / overlay | (P2) assemble different plugin sets per blueprint/environment | One codebase, many product shapes |
 
-## 二、分层结构（依赖单向，上层可依赖下层，禁止反向）
+## 2. Layers (dependencies point downward only, never upward)
 
 ```
 ┌────────────────────────────────────────────────┐
-│ apps/        壳工程：只做装配，不写业务            │
+│ apps/        shells: assembly only, no business  │
 ├────────────────────────────────────────────────┤
-│ plugins/     业务插件：React / Vue / 原生均可      │
+│ plugins/     business plugins: React/Vue/vanilla │
 ├────────────────────────────────────────────────┤
-│ packages/adapter-*  框架渲染器（唯一允许碰框架处） │
+│ packages/adapter-*  renderers (the only place    │
+│                     allowed to touch frameworks) │
 ├────────────────────────────────────────────────┤
-│ packages/core       插线板标准（框架无关）         │
-│ packages/schema     插件身份证 + 图纸类型          │
+│ packages/core       the strip standard           │
+│ packages/schema     manifest & blueprint types   │
 └────────────────────────────────────────────────┘
 ```
 
-## 三、跨框架原理：组件互不对话，只对公告板负责
+## 3. Cross-Framework Principle: components never talk to each other, only to the board
 
-- **数据**：插件调 `ctx.get('http')` 等服务，不知道实现是谁。
-- **通信**：插件发/收 Cordis 事件，不知道对方是什么框架。
-- **渲染**：插槽贡献物带 `framework` 标记，`packages/adapter-*` 里的渲染器（转换头）负责点亮。
+- **Data**: plugins call services like `ctx.get('http')`, never knowing who implements them.
+- **Communication**: plugins emit/listen to Cordis events, never knowing the other side's framework.
+- **Rendering**: slot contributions carry a `framework` tag; renderers in `packages/adapter-*` light them up.
 
+```mermaid
+flowchart LR
+    subgraph 插件层["Plugin layer (strangers to each other)"]
+        R["React plugin"]
+        V["Vue plugin"]
+        H["HTML plugin"]
+    end
+    BUS["ctx services + event bus"]
+    SHELL["apps shell"]
+    OTH["other plugins"]
+    R <--> BUS
+    V <--> BUS
+    H <--> BUS
+    BUS <--> SHELL
+    BUS <--> OTH
 ```
-React 插件 ─┐
-Vue 插件  ──┼─► ctx 服务 + 事件总线（公告板）◄─┬── apps 壳
-HTML 插件 ─┘                                  └── 其他插件
+
+## 4. Anatomy of One Event (playground example)
+
+1. Vue plugin button click → `ctx.emit('app/toast', '...')`
+2. core event bus broadcasts to every `ctx.on('app/toast')` listener
+3. The shell (apps/playground) listener receives it → renders a toast
+4. Throughout: the Vue plugin never knows the shell is React; the shell never knows the sender is Vue
+
+```mermaid
+sequenceDiagram
+    participant V as Vue plugin
+    participant B as ctx event bus
+    participant S as Shell (playground)
+    V->>B: emit('app/toast', 'water level 66%')
+    B->>S: broadcast to all on('app/toast') listeners
+    S->>S: render toast
+    Note over V,S: neither side knows the other's framework
 ```
 
-## 四、一次事件的完整路径（以 playground 为例）
+## 5. Frontend Uses of the Five Dispatch Modes
 
-1. Vue 插件按钮点击 → `ctx.emit('app/toast', '...')`
-2. core 事件总线广播给所有 `ctx.on('app/toast')` 的监听器
-3. 壳工程（apps/playground）的监听器收到 → 渲染 toast
-4. 全程：Vue 插件不知道壳是 React 写的，壳不知道消息来自 Vue
-
-## 五、五种分发模式的前端用途
-
-| 模式 | 语义 | 典型场景 |
+| Mode | Semantics | Typical scenarios |
 |---|---|---|
-| `emit` | 广播，无返回 | 通知类：toast、埋点、选中变化 |
-| `waterfall` | 环绕中间件，`(value, next)` | 数据加工链：表格列处理、请求拦截、脱敏 |
-| `bail` | 首个非 undefined 短路 | 单决策：权限否决、路由拦截 |
-| `parallel` | 并行扇出，await 全部 | 页面加载时的并行预取 |
-| `serial` | 按序执行，值依次传递 | 命令管道、分步校验 |
+| `emit` | broadcast, no return | notifications: toast, tracking, selection changes |
+| `waterfall` | around-middleware, `(value, next)` | processing chains: table columns, request interceptors, masking |
+| `bail` | first non-undefined short-circuits | single decisions: permission veto, route guards |
+| `parallel` | parallel fan-out, await all | parallel prefetch on page load |
+| `serial` | sequential, value threaded through | command pipelines, step-wise validation |
 
-## 六、关键实现约定
+## 6. Key Implementation Conventions
 
-- **插件作用域**：`ctx.plugin()` 执行 `apply` 期间的所有 `on/contribute/effect` 自动归入该插件的 disposer 组；`ctx.unplug(name)` 逆序撤销。
-- **插槽**：`ctx.contribute(slot, { framework, component, order })` 注册贡献物并广播 `slot/changed:<slot>`；React 侧的 `<Slot name>` 订阅该事件自动刷新，非 React 组件经 `<ForeignMount>` 委托对应渲染器挂载。
-- **渲染器注册表**：`ctx.setRenderer('vue', vueRenderer)`，壳启动时注册，插件无需关心。
+- **Plugin scope**: every `on/contribute/effect` during `apply` is collected into that plugin's disposer group; `ctx.unplug(name)` undoes them in reverse order.
+- **Slots**: `ctx.contribute(slot, { framework, component, order })` registers a contribution and broadcasts `slot/changed:<slot>`; the `<Slot name>` component subscribes and refreshes automatically; non-host-framework components are mounted via `<ForeignMount>` + the matching renderer.
+- **Renderer registry**: `ctx.setRenderer('vue', vueRenderer)` at shell startup; plugins never care.

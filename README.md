@@ -1,44 +1,66 @@
+**English** | [简体中文](README.zh-CN.md)
+
 # PlugX
 
-> 以 Cordis 思想（服务容器 + 声明式依赖 + 类型化事件 + 可逆副作用）为内核的跨框架 UI 插件平台。
-> 大白话：**项目是插线板，功能是插头，什么框架写的插头都能插。**
+> A Cordis-inspired cross-framework UI plugin platform: service container + typed events + reversible side effects.
+> In plain words: **the app is a power strip, features are plugs — a plug written in any framework fits.**
 
-## 快速开始
+```mermaid
+flowchart LR
+    subgraph 壳["Shell (apps/)"]
+        A["装配入口<br/>create ctx / services / mount"]
+    end
+    subgraph 内核["Kernel (packages/)"]
+        C["core · Context<br/>services · events · slots"]
+        AD["adapters<br/>react / vue"]
+    end
+    subgraph 插件["Plugins"]
+        P1["React plugin"]
+        P2["Vue plugin"]
+        P3["HTML plugin"]
+    end
+    P1 & P2 & P3 -->|"services & events only"| C
+    C --> AD --> A
+```
+
+## Quick Start
 
 ```powershell
 pnpm install
-pnpm dev        # 启动验证场 http://localhost:5180
-pnpm typecheck  # 全量类型检查
-pnpm build      # 构建验证
+pnpm dev        # playground at http://localhost:5180
+pnpm typecheck  # type-check all packages
+pnpm build      # build verification
 ```
 
-## 仓库结构
+## Repository Layout
 
 ```
 plugx/
-├── AGENTS.md            # ★ AI 协作者总规范（任何 AI 开工前必读）
-├── docs/                # 架构 / 路线图 / 契约 / 约定 / 任务卡
-├── packages/            # 平台内核（业务无关）
-│   ├── core/            #   插件运行时核（框架无关）
-│   ├── adapter-react/   #   React 渲染器 + <Slot> + hooks
-│   ├── adapter-vue/     #   Vue 渲染器
-│   └── schema/          #   插件身份证 + 页面图纸 的类型与校验
-├── plugins/             # 示例插件（一个 React 写的，一个 Vue 写的）
-├── apps/
-│   ├── playground/      # 验证场：跨框架（React+Vue）插件装配演示
-│   └── runway-guard/    # 机场跑道防入侵平台（Vue3 壳 + Naive UI）
+├── AGENTS.md            # ★ AI collaborator rules (mandatory reading before any work)
+├── docs/                # architecture / roadmap / contracts / conventions / task cards
+├── packages/            # platform kernel (business-free)
+│   ├── core/            #   plugin runtime core (framework-agnostic)
+│   ├── adapter-react/   #   React renderer + <Slot> + hooks
+│   ├── adapter-vue/     #   Vue renderer + <Slot> + app integration
+│   └── schema/          #   plugin manifest & page blueprint types (zod)
+├── plugins/             # example plugins (one React, one Vue)
+└── apps/
+    ├── playground/      # cross-framework assembly demo (React + Vue side by side)
+    └── runway-guard/    # (git-ignored) company project shell — not published
 ```
 
-## 文档导航
+## Documentation
 
-| 文档 | 内容 |
+Every document ships in two languages: `<name>.md` (English, default) and `<name>.zh-CN.md` (中文), switchable via the link at the top of each file.
+
+| Document | Content |
 |---|---|
-| [docs/architecture.md](docs/architecture.md) | 架构全景与数据流 |
-| [docs/roadmap.md](docs/roadmap.md) | P1~P4 阶段路线图 |
-| [docs/contracts.md](docs/contracts.md) | 契约清单：服务 / 事件 / 插槽（冻结级） |
-| [docs/conventions.md](docs/conventions.md) | 编码与协作约定 |
-| [docs/tasks/](docs/tasks/) | 任务卡（认领制） |
+| [docs/architecture.md](docs/architecture.md) | Architecture overview & data flow |
+| [docs/roadmap.md](docs/roadmap.md) | P1–P4 phase roadmap |
+| [docs/contracts.md](docs/contracts.md) | Contract registry: services / events / slots (frozen) |
+| [docs/conventions.md](docs/conventions.md) | Coding & collaboration conventions |
+| [docs/tasks/](docs/tasks/) | Task cards (claim-based) |
 
-## 当前状态
+## Status
 
-**P1 · 插件化内核** —— 进行中，见 [docs/roadmap.md](docs/roadmap.md)。
+**P1 · Plugin runtime core** — in progress, see [docs/roadmap.md](docs/roadmap.md).
