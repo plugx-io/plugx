@@ -1,0 +1,22 @@
+{
+  "name": "@plugx/adapter-vue",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@plugx/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": ">=3.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vue": "^3.5.13"
+  }
+}
